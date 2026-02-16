@@ -1,18 +1,17 @@
 package analyzer
 
 import (
-	"go/ast"
-
 	"github.com/hel1th/loglinter/pkg/loggers"
 	"github.com/hel1th/loglinter/pkg/rules"
 	"golang.org/x/tools/go/analysis"
 )
 
 var Analyzer = &analysis.Analyzer{
-	Name:     "loglinter",
-	Doc:      "corrects log messages",
-	Run:      run,
-	Requires: []*analysis.Analyzer{},
+	Name:             "loglinter",
+	Doc:              "checks log messages for bad patterns",
+	Run:              run,
+	Requires:         []*analysis.Analyzer{},
+	RunDespiteErrors: false,
 }
 
 type Config struct {
@@ -23,20 +22,11 @@ type Config struct {
 
 var config = &Config{}
 
-func SetConfig(cfg *Config) {
-	config = cfg
-}
-
 func run(pass *analysis.Pass) (any, error) {
 	detector := loggers.NewDetector(pass)
-
 	ruleSet := createRuleSet()
 
 	for _, file := range pass.Files {
-		if isTestFile(file) {
-			continue
-		}
-
 		logCalls := detector.DetectLogCalls(file)
 
 		for _, logCall := range logCalls {
@@ -56,10 +46,13 @@ func createRuleSet() *rules.RuleSet {
 
 	rulesList := []rules.Rule{
 		&rules.LowercaseRule{},
+		&rules.EnglishOnlyRule{},
+		&rules.NoSpecialSymbolsRule{},
+		&rules.SensitiveDataRule{},
 	}
 
 	for _, rule := range rulesList {
-		if RuleEnabled(rule) {
+		if shouldEnableRule(rule.Name()) {
 			ruleSet.AddRule(rule)
 		}
 	}
@@ -67,8 +60,7 @@ func createRuleSet() *rules.RuleSet {
 	return ruleSet
 }
 
-func RuleEnabled(rule rules.Rule) bool {
-	ruleName := rule.Name()
+func shouldEnableRule(ruleName string) bool {
 	for _, disabled := range config.DisabledRules {
 		if disabled == ruleName {
 			return false
@@ -85,12 +77,4 @@ func RuleEnabled(rule rules.Rule) bool {
 	}
 
 	return true
-}
-
-func isTestFile(file *ast.File) bool {
-	if file.Name.Name == "test" || file.Name.Name == "testing" {
-		return true
-	}
-
-	return false
 }
