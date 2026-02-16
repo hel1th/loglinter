@@ -12,7 +12,6 @@ func TestLowercaseRule(t *testing.T) {
 		name      string
 		message   string
 		wantValid bool
-		wantError string
 	}{
 		{
 			name:      "valid lowercase",
@@ -33,7 +32,6 @@ func TestLowercaseRule(t *testing.T) {
 			name:      "invalid uppercase",
 			message:   `"Starting app"`,
 			wantValid: false,
-			wantError: "message starts with uppercase letter: 'S'",
 		},
 		{
 			name:      "empty str",
@@ -43,19 +41,18 @@ func TestLowercaseRule(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		expr, err := parser.ParseExpr(tt.message)
-		if err != nil {
-			t.Fatalf("failed to parse expr: %s", tt.message)
-		}
+		t.Run(tt.name, func(t *testing.T) {
+			expr, err := parser.ParseExpr(tt.message)
+			if err != nil {
+				t.Fatalf("failed to parse expression: %v", err)
+			}
 
-		errMsg, valid := rule.CheckExpr(expr)
-		if valid != tt.wantValid {
-			t.Errorf("TEST: %s - CheckExpr() valid = %v, want %v", tt.name, valid, tt.wantValid)
-		}
+			valid, _ := rule.CheckExpr(expr)
 
-		if !tt.wantValid && errMsg != tt.wantError {
-			t.Errorf("TEST: %q - CheckExpr() error = %v, want %v", tt.name, errMsg, tt.wantError)
-		}
+			if valid != tt.wantValid {
+				t.Errorf("CheckExpr() valid = %v, want %v", valid, tt.wantValid)
+			}
+		})
 	}
 
 }

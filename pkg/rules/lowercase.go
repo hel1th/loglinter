@@ -69,10 +69,10 @@ func (r *LowercaseRule) Message() string {
 	return "log message should start with a lowercase letter"
 }
 
-func (r *LowercaseRule) CheckExpr(expr ast.Expr) (string, bool) {
+func (r *LowercaseRule) CheckExpr(expr ast.Expr) (bool, string) {
 	message, ok := loggers.ExtractStringLit(expr)
 	if !ok || len(message) == 0 {
-		return "", true
+		return true, ""
 	}
 
 	firstNonSpaceIdx := 0
@@ -82,13 +82,13 @@ func (r *LowercaseRule) CheckExpr(expr ast.Expr) (string, bool) {
 	}
 
 	if firstNonSpaceIdx >= len(message) {
-		return "", true
+		return true, ""
 	}
 	firstNonSpace := rune(message[firstNonSpaceIdx])
 
 	if unicode.IsUpper(firstNonSpace) {
-		return fmt.Sprintf("message starts with uppercase letter: '%c'", firstNonSpace), false
+		return false, fmt.Sprintf("message starts with uppercase letter: '%c'", firstNonSpace)
 	}
 
-	return "", true
+	return true, ""
 }
