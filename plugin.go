@@ -1,8 +1,6 @@
-package main
+package loglinter
 
 import (
-	"fmt"
-
 	"github.com/golangci/plugin-module-register/register"
 	"github.com/hel1th/loglinter/pkg/analyzer"
 	"golang.org/x/tools/go/analysis"
@@ -25,6 +23,5 @@ func New(settings any) (register.LinterPlugin, error) {
 }
 
 func init() {
-	fmt.Println("dsadasd")
 	register.Plugin("loglinter", New)
 }

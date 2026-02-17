@@ -64,7 +64,7 @@ func (r *NoSpecialSymbolsRule) isAllowedChar(char rune) bool {
 	if char >= '0' && char <= '9' {
 		return true
 	}
-	if char == ' ' || char == '-' || char == '_' {
+	if char == ' ' || char == '-' || char == '_' || char == '%' {
 		return true
 	}
 	return false

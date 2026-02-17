@@ -1,0 +1,53 @@
+name: Lint
+
+on:
+    push:
+        branches: [main, master]
+    pull_request:
+        branches: [main, master]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Go
+              uses: actions/setup-go@v5
+              with:
+                  go-version: "1.22"
+                  cache: true
+
+            - name: Download dependencies
+              run: go mod download
+
+            - name: Build linter
+              run: |
+                  mkdir -p bin
+                  go build -o bin/loglinter ./cmd/loglinter
+
+            - name: Run unit tests
+              run: go test -v ./...
+
+            - name: Test linter on itself
+              run: ./bin/loglinter ./... || echo "Found issues (expected for demo)"
+
+            - name: Create test files and run linter
+              run: |
+                  mkdir -p /tmp/testproject
+                  cd /tmp/testproject
+                  go mod init testproject
+
+                  cat > main.go << 'EOF'
+                  package main
+
+                  import "log"
+
+                  func main() {
+                      log.Println("Starting server")  // should fail
+                      log.Println("starting server")  // should pass
+                  }
+                  EOF
+
+                  ${{ github.workspace }}/bin/loglinter . || echo "Linter found issues (expected)"

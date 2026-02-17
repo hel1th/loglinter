@@ -1,4 +1,13 @@
 version: "2"
+
 linters:
+  default: none
   enable:
     - loglinter
+  settings:
+    custom:
+      loglinter:
+        type: "module"
+        description: This is an example usage of a plugin linter.
+        settings:
+          message: hello
