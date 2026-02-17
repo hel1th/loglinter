@@ -1,8 +1,13 @@
 package analyzer
 
 import (
+	"os"
+	"slices"
+
+	"github.com/hel1th/loglinter/pkg/config"
 	"github.com/hel1th/loglinter/pkg/loggers"
 	"github.com/hel1th/loglinter/pkg/rules"
+	"github.com/joho/godotenv"
 	"golang.org/x/tools/go/analysis"
 )
 
@@ -13,14 +18,17 @@ var Analyzer = &analysis.Analyzer{
 	Requires:         []*analysis.Analyzer{},
 	RunDespiteErrors: false,
 }
+var cfg *config.Config
 
-type Config struct {
-	EnabledRules            []string
-	DisabledRules           []string
-	CustomSensitivePatterns []string
+func init() {
+	godotenv.Load(".env")
+
+	var err error
+	cfg, err = config.LoadConfig(os.Getenv("CONFIG_PATH"))
+	if err != nil {
+		cfg = config.DefaultConfig()
+	}
 }
-
-var config = &Config{}
 
 func run(pass *analysis.Pass) (any, error) {
 	detector := loggers.NewDetector(pass)
@@ -61,19 +69,12 @@ func createRuleSet() *rules.RuleSet {
 }
 
 func shouldEnableRule(ruleName string) bool {
-	for _, disabled := range config.DisabledRules {
-		if disabled == ruleName {
-			return false
-		}
+	if slices.Contains(cfg.GetDisabledRules(), ruleName) {
+		return false
 	}
 
-	if len(config.EnabledRules) > 0 {
-		for _, enabled := range config.EnabledRules {
-			if enabled == ruleName {
-				return true
-			}
-		}
-		return false
+	if cfg.IsEnabled() {
+		return slices.Contains(cfg.GetEnabledRules(), ruleName)
 	}
 
 	return true

@@ -16,7 +16,7 @@ jobs:
             - name: Setup Go
               uses: actions/setup-go@v5
               with:
-                  go-version: "1.22"
+                  go-version: "1.25.6"
                   cache: true
 
             - name: Download dependencies
@@ -31,7 +31,7 @@ jobs:
               run: go test -v ./...
 
             - name: Test linter on itself
-              run: ./bin/loglinter ./... || echo "Found issues (expected for demo)"
+              run: Run ./bin/loglinter ./... || echo "Found issues (expected for demo)"
 
             - name: Create test files and run linter
               run: |

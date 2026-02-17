@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "rules": {
+        "lowercase-start": {
+            "enabled": true
+        },
+        "english-only": {
+            "enabled": false
+        },
+        "no-special-symbols": {
+            "enabled": false
+        },
+        "no-sensitive-data": {
+            "enabled": false
+        }
+    },
+    "custom-sensitive-patterns": [
+        "ssn",
+        "credit_card"
+    ]
+}
