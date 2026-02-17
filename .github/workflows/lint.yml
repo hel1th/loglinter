@@ -31,7 +31,7 @@ jobs:
               run: go test -v ./...
 
             - name: Test linter on itself
-              run: Run ./bin/loglinter ./... || echo "Found issues (expected for demo)"
+              run: Run ./bin/loglinter ./...
 
             - name: Create test files and run linter
               run: |
