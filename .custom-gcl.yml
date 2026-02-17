@@ -1,0 +1,4 @@
+version: v2.9.0
+plugins:
+  - module: "github.com/hel1th/loglinter/plugin"
+    path: ./plugin
