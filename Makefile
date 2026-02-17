@@ -1,4 +1,4 @@
-.PHONY: build test lint clean install ci
+.PHONY: build test lint clean install ci plugin
 
 # Переменные
 BINARY_NAME=loglinter
@@ -10,6 +10,10 @@ build:
 	@echo "Building $(BINARY_NAME)..."
 	@mkdir -p $(BIN_DIR)
 	go build -o $(BIN_DIR)/$(BINARY_NAME) ./$(CMD_DIR)
+
+
+plugin:
+	golangci-lint custom 
 
 # Тесты
 test:
